@@ -1,0 +1,46 @@
+start: import* func*
+
+import: "import" dotted_name
+      | "from" dotted_name "import" dotted_name -> import_from
+
+func: name name "(" [params] ")" block
+
+params: param ("," param)*
+
+block: "{" expr* "}"
+
+param: name name
+
+!?expr: term ("+" | "-") term -> bin_op
+    | term
+
+!?term: factor ("*" | "/") factor -> bin_op
+    | factor
+
+?factor: atom
+      | stmt
+
+?stmt: func_call
+     | if_stmt
+     | assign
+
+
+
+func_call: name "(" [expr ("," expr)*] ")"
+
+if_stmt: "if" expr block ("elif" expr block)* ["else" block]
+
+assign: dotted_name "=" expr
+
+?atom: SIGNED_NUMBER | string | name
+
+?dotted_name: name ( "." name )*
+
+string : ESCAPED_STRING
+?name: CNAME
+
+%import common.CNAME
+%import common.ESCAPED_STRING
+%import common.SIGNED_NUMBER
+%import common.WS
+%ignore WS
