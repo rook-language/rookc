@@ -7,7 +7,7 @@ func: name name "(" [params] ")" block
 
 params: param ("," param)*
 
-block: "{" expr* "}"
+block: "{" (expr ";")* "}"
 
 param: name name
 

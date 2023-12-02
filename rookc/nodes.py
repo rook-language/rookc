@@ -2,17 +2,41 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from enum import Enum
+from typing import Any
+
+
+class AtomType(str, Enum):
+    NAME = "name"
+    NUMBER = "number"
+
+
+@dataclass
+class Atom:
+    type_: AtomType
+    val: Any
+
+
+class Name(str):
+    pass
 
 
 @dataclass
 class Assign:
-    name: str
+    name: Name
     val: int
 
 
 @dataclass
+class BinOp:
+    left: int
+    right: int
+    op: str
+
+
+@dataclass
 class FuncCall:
-    name: str
+    name: Name
     args: list
 
 
@@ -28,20 +52,15 @@ class Block:
 
 @dataclass
 class Func:
-    type_: str
+    type_: Name
     name: str
     params: list
     block: Block
 
 
-def py_call(type_: str, name: str):
+def py_call(type_: Name, name: str):
     def wrap(f) -> Func:
-        return Func(
-            type_,
-            name,
-            [],
-            Block([PyCall(f)])
-        )
+        return Func(type_, name, [], Block([PyCall(f)]))
 
     return wrap
 
