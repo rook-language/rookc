@@ -1,9 +1,15 @@
 from collections.abc import Generator
 
 from rich import print
+from rich.text import Text
+from rich.protocol import rich_cast
 from dataclasses import dataclass, field
+from rich import pretty
 
 from contextlib import contextmanager
+
+def cast_text(a) -> Text:
+    return a.__rich__()
 
 
 @dataclass
@@ -13,6 +19,18 @@ class Instruction:
 
     def __repr__(self):
         return f"| {self.name} {' '.join(map(str, self.args))} |"
+
+    def __rich__(self):
+        t = Text()
+        t.append("| ")
+        t.append(self.name, "green")
+        for a in self.args:
+            t.append(" ")
+            t.append(str(a), "magenta")
+        t.append(" |")
+        return t
+
+
 
 
 @dataclass
@@ -51,6 +69,12 @@ class IFunc:
     def __repr__(self):
         return "\n".join(map(str, self.instructions))
 
+    def __rich__(self):
+        return Text("\n").join(
+            map(cast_text, self.instructions)
+        )
+
+
 
 @dataclass
 class IRGen:
@@ -65,4 +89,9 @@ class IRGen:
     def __repr__(self):
         return "\n\n".join(
             [f"-== {k} ==- : \n" + str(v) for k, v in self.funcs.items()]
+        )
+
+    def __rich__(self):
+        return Text("\n\n").join(
+            [Text.assemble("-== ", (k, "green"), " ==-", "\n", cast_text(v)) for k, v in self.funcs.items()]
         )
