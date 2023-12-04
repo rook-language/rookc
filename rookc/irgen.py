@@ -1,12 +1,13 @@
 from collections.abc import Generator
 
-from rich import print
 from rich.text import Text
 from rich.protocol import rich_cast
 from dataclasses import dataclass, field
-from rich import pretty
+from rich.panel import Panel
+from rich.console import Group
 
 from contextlib import contextmanager
+
 
 def cast_text(a) -> Text:
     return a.__rich__()
@@ -21,16 +22,9 @@ class Instruction:
         return f"| {self.name} {' '.join(map(str, self.args))} |"
 
     def __rich__(self):
-        t = Text()
-        t.append("| ")
-        t.append(self.name, "green")
-        for a in self.args:
-            t.append(" ")
-            t.append(str(a), "magenta")
-        t.append(" |")
-        return t
-
-
+        return Text.assemble(
+            (self.name, "green"), *[(f" {a}", "magenta") for a in self.args]
+        )
 
 
 @dataclass
@@ -70,10 +64,10 @@ class IFunc:
         return "\n".join(map(str, self.instructions))
 
     def __rich__(self):
-        return Text("\n").join(
-            map(cast_text, self.instructions)
-        )
+        return Text("\n").join(map(cast_text, self.instructions))
 
+    def get_panel(self, name) -> Panel:
+        return Panel.fit(rich_cast(self), title=Text(name, "cyan bold"), padding=(0, 2))
 
 
 @dataclass
@@ -92,6 +86,4 @@ class IRGen:
         )
 
     def __rich__(self):
-        return Text("\n\n").join(
-            [Text.assemble("-== ", (k, "green"), " ==-", "\n", cast_text(v)) for k, v in self.funcs.items()]
-        )
+        return Group(*(v.get_panel(k) for k, v in self.funcs.items()))

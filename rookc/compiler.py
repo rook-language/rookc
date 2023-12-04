@@ -38,7 +38,3 @@ def compile_(src: Source):
     return irgen
 
 
-ast = parse.parse("test.rk")
-ir = compile_(ast)
-
-print(ir)

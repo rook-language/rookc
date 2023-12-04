@@ -58,9 +58,9 @@ class Func:
     block: Block
 
 
-def py_call(type_: Name, name: str):
+def py_call(type_: str, name: str):
     def wrap(f) -> Func:
-        return Func(type_, name, [], Block([PyCall(f)]))
+        return Func(Name(type_), name, [], Block([PyCall(f)]))
 
     return wrap
 
